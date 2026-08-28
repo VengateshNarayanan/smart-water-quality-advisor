@@ -1,0 +1,298 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Smart Water Quality Advisor</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+<main class="container">
+
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header class="header">
+
+        <div>
+
+            <p class="eyebrow">
+                AI-POWERED WATER MONITORING
+            </p>
+
+            <h1>
+                Smart Water Quality Advisor
+            </h1>
+
+            <p class="subtitle">
+                Machine-learning forecasting with
+                AI-generated safety insights.
+            </p>
+
+        </div>
+
+
+        <button
+            id="refreshButton"
+            class="refresh-button"
+            type="button"
+        >
+            Refresh Analysis
+        </button>
+
+    </header>
+
+
+    <!-- =====================================================
+         STATUS
+    ====================================================== -->
+
+    <section class="status-card">
+
+        <div>
+
+            <span class="label">
+                SYSTEM STATUS
+            </span>
+
+            <h2 id="systemStatus">
+                Loading...
+            </h2>
+
+        </div>
+
+
+        <div
+            id="riskBadge"
+            class="risk-badge"
+        >
+            --
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         METRICS
+    ====================================================== -->
+
+    <section class="metrics">
+
+
+        <div class="metric-card">
+
+            <span class="label">
+                CURRENT TURBIDITY
+            </span>
+
+            <strong id="currentTurbidity">
+                --
+            </strong>
+
+            <span>
+                NTU
+            </span>
+
+        </div>
+
+
+        <div class="metric-card">
+
+            <span class="label">
+                PREDICTED TURBIDITY
+            </span>
+
+            <strong id="predictedTurbidity">
+                --
+            </strong>
+
+            <span>
+                NTU
+            </span>
+
+        </div>
+
+
+        <div class="metric-card">
+
+            <span class="label">
+                OBSERVATION TIME
+            </span>
+
+            <strong id="timestamp">
+                --
+            </strong>
+
+        </div>
+
+
+    </section>
+
+
+    <!-- =====================================================
+         SAFETY ASSESSMENT
+    ====================================================== -->
+
+    <section class="panel">
+
+        <div class="panel-header">
+
+            <h2>
+                Safety Assessment
+            </h2>
+
+            <span class="verified">
+                Verified by rules
+            </span>
+
+        </div>
+
+
+        <p id="safetyAdvisory">
+            Loading safety assessment...
+        </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         AI ADVISORY
+    ====================================================== -->
+
+    <section class="panel ai-panel">
+
+        <div class="panel-header">
+
+            <h2>
+                AI Safety Advisory
+            </h2>
+
+            <span class="ai-badge">
+                Gemini
+            </span>
+
+        </div>
+
+
+        <div
+            id="aiRecommendation"
+            class="ai-content"
+        >
+            Generating advisory...
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         CHATBOT
+    ====================================================== -->
+
+    <section class="panel chat-panel">
+
+        <div class="panel-header">
+
+            <h2>
+                Ask the Water Advisor
+            </h2>
+
+            <span class="ai-badge">
+                AI Chat
+            </span>
+
+        </div>
+
+
+        <div
+            id="chatMessages"
+            class="chat-messages"
+        >
+
+            <div class="chat-message assistant">
+
+                <strong>
+                    Water Advisor
+                </strong>
+
+                <p>
+                    Hello. Ask me about the current
+                    turbidity, forecast, risk level,
+                    or recommended monitoring actions.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="chat-input-area">
+
+            <input
+                type="text"
+                id="chatInput"
+                placeholder="Ask a question about water quality..."
+                autocomplete="off"
+            >
+
+            <button
+                id="sendButton"
+                class="send-button"
+                type="button"
+            >
+                Send
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         DISCLAIMER
+    ====================================================== -->
+
+    <footer>
+
+        <p>
+            This system provides an advisory based on
+            sensor data and machine-learning forecasts.
+            It is not a regulatory determination.
+        </p>
+
+    </footer>
+
+
+</main>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================== -->
+
+<script
+    src="{{ url_for('static', filename='script.js') }}"
+></script>
+
+
+</body>
+
+</html>
+

@@ -1,109 +1,135 @@
+
 from pathlib import Path
+import gzip
 import joblib
 import pandas as pd
 
 
-# --------------------------------------------------
-# PROJECT PATHS
-# --------------------------------------------------
+# ============================================================
+# PATH CONFIGURATION
+# ============================================================
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DATA_PATH = BASE_DIR / "data" / "river_features.csv"
-MODEL_PATH = BASE_DIR / "models" / "turbidity_model.pkl"
+MODEL_PATH = BASE_DIR / "models" / "turbidity_model.pkl.gz"
 
 
-# --------------------------------------------------
-# LOAD MODEL
-# --------------------------------------------------
+# ============================================================
+# MODEL FEATURES
+# ============================================================
 
-if not MODEL_PATH.exists():
-    raise FileNotFoundError(
-        f"Model not found: {MODEL_PATH}"
-    )
-
-model_data = joblib.load(MODEL_PATH)
-
-model = model_data["model"]
-FEATURES = model_data["features"]
+FEATURES = [
+    "Conductivity",
+    "Dissolved Oxygen",
+    "pH",
+    "WaterTemp",
+    "NO3",
+]
 
 
-# --------------------------------------------------
-# PREDICTION FUNCTION
-# --------------------------------------------------
+# ============================================================
+# LOAD COMPRESSED MODEL
+# ============================================================
 
-def predict_latest():
+def load_model():
+    """
+    Load the trained scikit-learn model from
+    the compressed .pkl.gz file.
+    """
 
-    if not DATA_PATH.exists():
+    if not MODEL_PATH.exists():
         raise FileNotFoundError(
-            f"Feature dataset not found: {DATA_PATH}"
+            f"Model file not found: {MODEL_PATH}"
         )
 
-    df = pd.read_csv(DATA_PATH)
+    with gzip.open(MODEL_PATH, "rb") as model_file:
+        model = joblib.load(model_file)
 
-    df["Timestamp"] = pd.to_datetime(
-        df["Timestamp"],
-        errors="coerce"
-    )
+    return model
 
-    df = df.dropna(
-        subset=["Timestamp"]
-    )
 
-    df = df.sort_values(
-        "Timestamp"
-    ).reset_index(drop=True)
+# ============================================================
+# PREDICT TURBIDITY
+# ============================================================
 
-    # Latest available observation
-    latest = df.iloc[-1]
+def predict_turbidity(data):
+    """
+    Predict turbidity using the trained model.
 
-    # Prepare model input
-    X_latest = pd.DataFrame(
-        [latest[FEATURES].values],
-        columns=FEATURES
-    )
+    Parameters
+    ----------
+    data : dict or pandas.DataFrame
+        Input sensor/feature values.
 
-    # Forecast
-    prediction = model.predict(
-        X_latest
-    )[0]
+    Returns
+    -------
+    float
+        Predicted turbidity value.
+    """
 
-    return {
-        "timestamp": latest["Timestamp"],
-        "current_turbidity": float(
-            latest["Turbidity"]
-        ),
-        "predicted_turbidity": float(
-            prediction
+    model = load_model()
+
+    # --------------------------------------------------------
+    # Convert dictionary input to DataFrame
+    # --------------------------------------------------------
+
+    if isinstance(data, dict):
+        data = pd.DataFrame([data])
+
+    elif not isinstance(data, pd.DataFrame):
+        raise TypeError(
+            "Input must be a dictionary or pandas DataFrame."
         )
-    }
+
+    # --------------------------------------------------------
+    # Validate required features
+    # --------------------------------------------------------
+
+    missing_features = [
+        feature
+        for feature in FEATURES
+        if feature not in data.columns
+    ]
+
+    if missing_features:
+        raise ValueError(
+            "Missing required features: "
+            + ", ".join(missing_features)
+        )
+
+    # --------------------------------------------------------
+    # Select features in correct order
+    # --------------------------------------------------------
+
+    X = data[FEATURES]
+
+    # --------------------------------------------------------
+    # Generate prediction
+    # --------------------------------------------------------
+
+    prediction = model.predict(X)
+
+    return float(prediction[0])
 
 
-# --------------------------------------------------
+# ============================================================
 # TEST
-# --------------------------------------------------
+# ============================================================
 
 if __name__ == "__main__":
 
-    result = predict_latest()
+    test_data = {
+        "Conductivity": 250.0,
+        "Dissolved Oxygen": 7.5,
+        "pH": 7.2,
+        "WaterTemp": 24.0,
+        "NO3": 2.0,
+    }
+
+    prediction = predict_turbidity(test_data)
 
     print("=" * 60)
-    print("LATEST TURBIDITY FORECAST")
+    print("TURBIDITY PREDICTION TEST")
     print("=" * 60)
+    print(f"Predicted Turbidity: {prediction:.4f} NTU")
 
-    print(
-        f"\nTimestamp:"
-        f" {result['timestamp']}"
-    )
-
-    print(
-        f"Current Turbidity:"
-        f" {result['current_turbidity']:.4f} NTU"
-    )
-
-    print(
-        f"Predicted Turbidity:"
-        f" {result['predicted_turbidity']:.4f} NTU"
-    )
-
-    print("\nPrediction completed successfully.")
